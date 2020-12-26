@@ -4,6 +4,7 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.j
     /*****************客户端消息收发器*******************/
     function JsVeMsgDispatcher(){
         var father = this; //this 代表window
+        this.baseServerUri;
         this.serverUri; //在window对象中声明成员变量
         this.isAsync=true;
         this.method="POST";
@@ -18,27 +19,27 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.j
         this.cMsgTypeId="VEReqMsgType";
         this.cMsgNameId="VEReqMsgName";
 
-        this.setConn = function (serverUri,method,isAsync,sendData){
+        this.setConn = function (baseServerUri,serverUri,method,isAsync,sendData){
             console.log("从消息处理函数 进入ve的setConn");
-            //this.serverUri = serverUri;
+            this.baseServerUri = baseServerUri;
+            this.serverUri = serverUri;
             this.isAsync = isAsync;
             this.method = method;
-
-            this.sendData =JSON.parse(sendData);
-            this.XHR = createXHR({serverUri});
+            this.sendData =Object.assign({"EIOVEDATA":JSON.parse(sendData)},this.reqMsgHead);
+            this.XHR = createXHR({baseServerUri});
 
         };
 
-        this.sendMsg = function ({url={}}){
+        this.sendMsg = function (){
             if(!this.XHR) return 1;
             //if(this.serverUri == null) return 2;
 
             this.XHR({
                 method: this.method,
-                url: url,
+                url: this.serverUri,
                 headers: {"Content-Type":"application/x-www-form-urlencoded"},
-                data: this.sendData,
-                params: this.reqMsgHead
+                data: JSON.stringify(this.sendData),
+                //params: this.reqMsgHead
             }).then(response=>{
                 eval(this.respFunc+"(response)") //回调处理函数
             }).catch(error =>{
@@ -79,9 +80,9 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.j
             return msgHead
         }
 
-        function createXHR({serverUri}){
+        function createXHR({baseServerUri}){
                 return axios.create({
-                    baseURL: serverUri,
+                    baseURL: baseServerUri,
                     timeout: 3000
                 })
         }

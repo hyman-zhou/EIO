@@ -1,6 +1,7 @@
 var cVe= new EIO.ve();
 var cVeName="VeDemo1";//定义本应用的Ve引擎名称，用户自定义，用作服务按的消息处理调度
-var cServerUri="http://localhost:3000"
+var cServerUri="posts"
+var cBaseServerUri="http://localhost:3000"
 var selectedRowId;
 var cMsgConfigure;
 
@@ -9,7 +10,7 @@ var cMsgConfigure;
 function reqSysInit()
 {
  var sendData = {"title":"json-from-eio","author": "zhoupeng"};
- cVe.setConn(cServerUri,"GET", true, sendData);
+ cVe.setConn(cBaseServerUri,cServerUri,"POST", true, JSON.stringify(sendData));
 }
 
 

@@ -77,3 +77,6 @@ function step3(n){
 }
 
 // 使用Promise方式
+
+let options = {"v":1}
+let params ={"a":1}
