@@ -4,7 +4,6 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.j
     /*****************客户端消息收发器*******************/
     function JsVeMsgDispatcher(){
         var father = this; //this 代表window
-        this.baseServerUri;
         this.serverUri; //在window对象中声明成员变量
         this.isAsync=true;
         this.method="POST";
@@ -19,14 +18,13 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.j
         this.cMsgTypeId="VEReqMsgType";
         this.cMsgNameId="VEReqMsgName";
 
-        this.setConn = function (baseServerUri,serverUri,method,isAsync,sendData){
+        this.setConn = function (serverUri,method,isAsync,sendData){
             console.log("从消息处理函数 进入ve的setConn");
-            this.baseServerUri = baseServerUri;
             this.serverUri = serverUri;
             this.isAsync = isAsync;
             this.method = method;
-            this.sendData =Object.assign({"EIOVEDATA":JSON.parse(sendData)},this.reqMsgHead);
-            this.XHR = createXHR({baseServerUri});
+            this.sendData = getMsgData(sendData);
+            this.XHR = createXHR(serverUri);
 
         };
 
@@ -36,16 +34,16 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.j
 
             this.XHR({
                 method: this.method,
-                url: this.serverUri,
+                url: "",
                 headers: {"Content-Type":"application/x-www-form-urlencoded"},
-                data: JSON.stringify(this.sendData),
-                //params: this.reqMsgHead
+                data: this.sendData,
+                params: ""
             }).then(response=>{
                 eval(this.respFunc+"(response)") //回调处理函数
             }).catch(error =>{
                 console.log(error.message)
             }).finally(()=>{
-                //都会执行的
+                //都会执行的回调
             })
             return 0; //成功返回0
         }
@@ -80,9 +78,19 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.j
             return msgHead
         }
 
-        function createXHR({baseServerUri}){
+        function getMsgData(sendData){
+            //组装VE消息 formdata格式的消息
+            let formdata = new FormData();
+            var keys = Object.keys(father.reqMsgHead).forEach((k)=>{
+                formdata.append(k,father.reqMsgHead[k]);
+            })
+            formdata.append(father.cEioVeDataId,sendData);
+            return formdata
+        }
+
+        function createXHR(serverUri){
                 return axios.create({
-                    baseURL: baseServerUri,
+                    baseURL: serverUri,
                     timeout: 3000
                 })
         }
