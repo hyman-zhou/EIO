@@ -71,14 +71,12 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.j
 
         function getMsgHead(cVeName,msgType,msgName,msgHandle)
         {//组装VE标准的消息头
-            const data = { 'bar': 123 }
             let msgHead = {}
             msgHead[father.cVeNameId]=cVeName;
             msgHead[father.cMsgTypeId]=msgType;
             msgHead[father.cMsgNameId]=msgName;
             msgHead["MsgHandle"]=msgHandle;
             return msgHead
-            //msgHead[father.cEioVeDataId]="";
         }
 
         function createXHR({serverUri}){
